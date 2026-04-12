@@ -1,0 +1,66 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId (matches request.auth.uid)
+    // Fields:
+    //   - location: string (optional, max 500 chars)
+    //   - jobRole: string (optional, max 500 chars)
+    //   - experience: string (optional, max 100 chars)
+    //   - jobType: string (optional, max 100 chars)
+    //   - workMode: string (optional, max 100 chars)
+    //   - salary: string (optional, max 100 chars)
+    //   - manualSkills: string (optional, JSON, max 1000000 chars)
+    //   - jobs: string (optional, JSON, max 1000000 chars)
+    //   - careerPaths: string (optional, JSON, max 1000000 chars)
+    //   - selectedJob: string (optional, JSON, max 1000000 chars)
+    //   - learningPlan: string (optional, JSON, max 1000000 chars)
+    //   - updatedAt: timestamp (optional)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidOptionalString(field, maxLen) {
+      return !(field in request.resource.data) ||
+             (request.resource.data[field] is string &&
+              request.resource.data[field].size() <= maxLen);
+    }
+
+    function isValidUserProfile() {
+      return isValidOptionalString('location', 500) &&
+             isValidOptionalString('jobRole', 500) &&
+             isValidOptionalString('experience', 100) &&
+             isValidOptionalString('jobType', 100) &&
+             isValidOptionalString('workMode', 100) &&
+             isValidOptionalString('salary', 100) &&
+             isValidOptionalString('manualSkills', 1000000) &&
+             isValidOptionalString('jobs', 1000000) &&
+             isValidOptionalString('careerPaths', 1000000) &&
+             isValidOptionalString('selectedJob', 1000000) &&
+             isValidOptionalString('learningPlan', 1000000) &&
+             (!('updatedAt' in request.resource.data) || request.resource.data.updatedAt is timestamp);
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserProfile();
+      allow update: if isOwner(userId) && isValidUserProfile();
+      allow delete: if isOwner(userId);
+    }
+  }
+}

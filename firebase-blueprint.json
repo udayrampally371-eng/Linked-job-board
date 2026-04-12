@@ -1,0 +1,29 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile and saved job search data",
+      "type": "object",
+      "properties": {
+        "location": { "type": "string" },
+        "jobRole": { "type": "string" },
+        "experience": { "type": "string" },
+        "jobType": { "type": "string" },
+        "workMode": { "type": "string" },
+        "salary": { "type": "string" },
+        "manualSkills": { "type": "string", "description": "JSON stringified array of skills" },
+        "jobs": { "type": "string", "description": "JSON stringified array of job matches" },
+        "careerPaths": { "type": "string", "description": "JSON stringified array of career paths" },
+        "selectedJob": { "type": "string", "description": "JSON stringified selected job" },
+        "learningPlan": { "type": "string", "description": "JSON stringified learning plan" },
+        "updatedAt": { "type": "timestamp" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profile data, keyed by Firebase Auth UID"
+    }
+  }
+}

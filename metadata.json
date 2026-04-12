@@ -1,0 +1,5 @@
+{
+  "name": "LinkedIn Job Recommender",
+  "description": "Find and recommend the best job postings on LinkedIn based on your skills and preferences.",
+  "requestFramePermissions": []
+}
